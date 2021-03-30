@@ -1,0 +1,10 @@
+---
+
+- /dev/null
+
+# Requires having the validation code internally.
+- https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
+
+- driver: zarr
+  options:
+    codec: bar
