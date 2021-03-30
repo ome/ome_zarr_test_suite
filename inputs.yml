@@ -1,10 +1,14 @@
 ---
 
-- /dev/null
-
-# Requires having the validation code internally.
+# TODO: Requires having the validation code internally.
 - https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
 
-- driver: zarr
-  options:
-    codec: bar
+- script: bioformats2raw_fake
+  args:
+    - "--compression=raw"
+    - "--nested=true"
+
+- script: bioformats2raw_fake
+  args:
+    - "--compression=blosc"
+    - "--nested=true"

@@ -27,11 +27,11 @@ class FileSource(Source):
 
 
 class GeneratedSource(Source):
-    def __init__(self, doc: dict) -> None:
-        self.doc = doc
+    def __init__(self, cmd: typing.List[str]) -> None:
+        self.cmd = cmd
 
     def __call__(self) -> str:
-        return "FIXME"
+        return subprocess.check_output(self.cmd).decode()
 
 
 class Sink:
@@ -58,8 +58,6 @@ def suites() -> typing.Iterator[dict]:
 
 @pytest.fixture(params=inputs())
 def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
-    print(type(request))
-    print(type(tmpdir))
     doc = request.param
     os.chdir(tmpdir)
     if isinstance(doc, str):
@@ -67,7 +65,11 @@ def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
         yield FileSource(doc)
     else:
         # Otherwise, run the generator which will produce a string
-        yield GeneratedSource(doc)
+        script = doc["script"]
+        script = f"{request.config.invocation_dir}/scripts/{script}"
+        args = doc.get("args", [])
+        cmd = [script] + args
+        yield GeneratedSource(cmd)  # FIXME: how to clean up?
 
 
 @pytest.fixture(params=suites())
