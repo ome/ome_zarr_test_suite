@@ -8,6 +8,10 @@ from _pytest.fixtures import SubRequest
 
 
 class Source:
+    """
+    Generic source generated from the description
+    """
+
     def setup(self) -> None:
         pass
 
@@ -34,7 +38,7 @@ class GeneratedSource(Source):
         return subprocess.check_output(self.cmd).decode()
 
 
-class Sink:
+class Suite:
     def __init__(self, script: str) -> None:
         self.script = script
 
@@ -44,7 +48,7 @@ class Sink:
         subprocess.check_call(cmd)
 
 
-def inputs() -> typing.Iterator[dict]:
+def sources() -> typing.Iterator[dict]:
     with open("inputs.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
     yield from docs
@@ -56,12 +60,12 @@ def suites() -> typing.Iterator[dict]:
     yield from docs
 
 
-@pytest.fixture(params=inputs())
+@pytest.fixture(params=sources())
 def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
     doc = request.param
     os.chdir(tmpdir)
     if isinstance(doc, str):
-        # If this is a string, wrap it into an input
+        # If this is a string, wrap it into a source
         yield FileSource(doc)
     else:
         # Otherwise, run the generator which will produce a string
@@ -73,16 +77,16 @@ def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
 
 
 @pytest.fixture(params=suites())
-def sink(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Sink]:
+def suite(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Suite]:
     doc = request.param
     script = doc["script"]
     script = f"{request.config.invocation_dir}/scripts/{script}"
-    yield Sink(script)
+    yield Suite(script)
 
 
-def test(source: Source, sink: Sink) -> None:
+def test(source: Source, suite: Suite) -> None:
     source.setup()
     try:
-        sink(source)
+        suite(source)
     finally:
         source.cleanup()
