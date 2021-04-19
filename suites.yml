@@ -1,3 +1,4 @@
 ---
 - script: ome_zarr_info
 - script: ome_zarr_downloads
+- script: zarr_checksum

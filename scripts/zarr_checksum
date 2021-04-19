@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+import argparse
+
+from ome_zarr.io import parse_url
+from ome_zarr.reader import Reader
+
+
+def zarr_checksum_check(filename: str) -> None:
+    loc = parse_url(filename)
+    reader = Reader(loc)
+    for node in reader():
+        if node.data:
+            # FIXME: temporary "checksum" to check that some data is present
+            assert node.data[-1].max().compute() > 0
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("zarr_uri")
+    ns = parser.parse_args()
+    zarr_checksum_check(ns.zarr_uri)

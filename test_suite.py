@@ -1,4 +1,5 @@
 import os
+import pathlib
 import signal
 import subprocess
 import typing
@@ -83,7 +84,13 @@ def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
 
     # If this is a string, wrap it into a source
     if isinstance(doc, str):
-        yield FileSource(doc)
+        if ":" not in doc:
+            # All files without a protocol should be taken relative to CWD
+            _ = (pathlib.Path(f"{request.config.invocation_dir}") / doc).resolve()
+            filename = str(_)
+        else:
+            filename = doc
+        yield FileSource(filename)
 
     else:
         script = doc["script"]
