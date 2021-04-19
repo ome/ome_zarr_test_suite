@@ -1,4 +1,5 @@
 import os
+import signal
 import subprocess
 import typing
 
@@ -35,7 +36,22 @@ class GeneratedSource(Source):
         self.cmd = cmd
 
     def __call__(self) -> str:
-        return subprocess.check_output(self.cmd).decode()
+        return subprocess.check_output(self.cmd).decode().strip()
+
+
+class ProcessSource(Source):
+    def __init__(self, cmd: typing.List[str], conn: str) -> None:
+        self.cmd = cmd
+        self.conn = conn
+        self.proc: typing.Optional[subprocess.Popen[bytes]] = None
+
+    def __call__(self) -> str:
+        self.proc = subprocess.Popen(self.cmd)
+        return self.conn
+
+    def cleanup(self) -> None:
+        if self.proc:
+            self.proc.send_signal(signal.SIGTERM)
 
 
 class Suite:
@@ -49,7 +65,7 @@ class Suite:
 
 
 def sources() -> typing.Iterator[dict]:
-    with open("inputs.yml") as file:
+    with open("sources.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
     yield from docs
 
@@ -64,16 +80,25 @@ def suites() -> typing.Iterator[dict]:
 def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
     doc = request.param
     os.chdir(tmpdir)
+
+    # If this is a string, wrap it into a source
     if isinstance(doc, str):
-        # If this is a string, wrap it into a source
         yield FileSource(doc)
+
     else:
-        # Otherwise, run the generator which will produce a string
         script = doc["script"]
         script = f"{request.config.invocation_dir}/scripts/{script}"
         args = doc.get("args", [])
         cmd = [script] + args
-        yield GeneratedSource(cmd)  # FIXME: how to clean up?
+
+        # If a connection is defined, then this is a background process
+        if "connection" in doc:
+            conn = doc["connection"]
+            yield ProcessSource(cmd, conn)
+
+        # Otherwise, run the generator which will produce a string
+        else:
+            yield GeneratedSource(cmd)  # FIXME: how to clean up?
 
 
 @pytest.fixture(params=suites())
