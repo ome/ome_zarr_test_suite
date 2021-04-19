@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-ome_zarr download "$@"
+ome_zarr download "$@" --output download

@@ -68,18 +68,22 @@ class Suite:
 def sources() -> typing.Iterator[dict]:
     with open("sources.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
-    yield from docs
+    for i, doc in enumerate(docs):
+        yield pytest.param(doc, id=f"source_{i}")
 
 
 def suites() -> typing.Iterator[dict]:
     with open("suites.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
-    yield from docs
+    for i, doc in enumerate(docs):
+        yield pytest.param(doc, id=f"suite_{i}")
 
 
 @pytest.fixture(params=sources())
 def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
     doc = request.param
+    # fixdir = tmpdir / request.fixturename
+    # fixdir.mkdir()
     os.chdir(tmpdir)
 
     # If this is a string, wrap it into a source

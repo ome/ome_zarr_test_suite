@@ -5,14 +5,14 @@
 # TODO: Requires having the validation code internally.
 # https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
 
-- data/64x64-fake-v0.1/0
+# - data/64x64-fake-v0.1/0
 
 - data/64x64-fake-v0.2/0
 
 # TODO: these need to be replaced by the above
-- https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/test-v0.1.zarr/0
+# - https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
 
-- https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/test-v0.2.zarr/0
+- https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.2/0
 
 # - script: bioformats2raw_fake
 #   args:
