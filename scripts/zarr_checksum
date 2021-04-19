@@ -6,8 +6,6 @@ import logging
 from ome_zarr.io import parse_url
 from ome_zarr.reader import Reader
 
-logging.basicConfig(level=logging.WARN)
-
 
 def zarr_checksum_check(filename: str, index: int) -> None:
     loc = parse_url(filename)
@@ -23,5 +21,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("zarr_uri")
     parser.add_argument("--index", "-i", default=-1, type=int)
+    parser.add_argument("--level", "-l", default=30, type=int)
     ns = parser.parse_args()
+    logging.basicConfig(level=ns.level)
     zarr_checksum_check(ns.zarr_uri, ns.index)
