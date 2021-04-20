@@ -13,7 +13,7 @@ from _pytest.fixtures import SubRequest
 
 class Source:
     """
-    Generic source generated from the description
+    Generic source generated from the entries in sources.yml
     """
 
     def setup(self) -> None:
@@ -27,6 +27,10 @@ class Source:
 
 
 class FileSource(Source):
+    """
+    Source with the "path" key set. The URI is assumed accessible.
+    """
+
     def __init__(self, filename: str) -> None:
         self.filename = filename
 
@@ -35,6 +39,11 @@ class FileSource(Source):
 
 
 class GeneratedSource(Source):
+    """
+    Source with the "script" key set and "connection" unset.
+    The script will be run and the stdout will be assumed to be a URI.
+    """
+
     def __init__(self, cmd: typing.List[str]) -> None:
         self.cmd = cmd
 
@@ -43,6 +52,12 @@ class GeneratedSource(Source):
 
 
 class ProcessSource(Source):
+    """
+    Source with the "script" key and "connection" set.
+    The script will be left running in the background and the
+    connection will be the URI passed to suites.
+    """
+
     def __init__(self, cmd: typing.List[str], conn: str) -> None:
         self.cmd = cmd
         self.conn = conn
@@ -58,6 +73,13 @@ class ProcessSource(Source):
 
 
 class Suite:
+    """
+    Entry from the suites.yml file.
+
+    Currently only scripts are supported which will be passed
+    the URI from a source.
+    """
+
     def __init__(self, script: str) -> None:
         self.script = script
 
@@ -68,6 +90,9 @@ class Suite:
 
 
 def sources() -> typing.Iterator[dict]:
+    """
+    generator to load all sources as pytest parameters
+    """
     with open("sources.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
     for i, doc in enumerate(docs):
@@ -76,6 +101,9 @@ def sources() -> typing.Iterator[dict]:
 
 
 def suites() -> typing.Iterator[dict]:
+    """
+    generator to load all suites as pytest parameters
+    """
     with open("suites.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
     for i, doc in enumerate(docs):
@@ -128,6 +156,9 @@ def suite(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Suite]:
 
 
 def test(source: Source, suite: Suite) -> None:
+    """
+    Primary test matching all sources with all suites.
+    """
     source.setup()
     try:
         suite(source)
@@ -136,6 +167,9 @@ def test(source: Source, suite: Suite) -> None:
 
 
 def test_all_scripts_used() -> None:
+    """
+    Quick test to check that scripts have been registered as sources or suites.
+    """
     with open("suites.yml") as o:
         suites = o.read()
     with open("sources.yml") as o:
