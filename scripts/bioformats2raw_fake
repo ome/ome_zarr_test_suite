@@ -6,6 +6,7 @@ git clone git://github.com/glencoesoftware/bioformats2raw 1>&2
 cd bioformats2raw
 docker build -t ${image_name} . 1>&2
 cd ..
+echo $PWD 1>&2
 docker run --rm -v $PWD:/out ${image_name} a.fake /out/bf2raw.zarr "$@" 1>&2
 # Only print return value to stdout
 echo ${PWD}/bf2raw.zarr
