@@ -1,3 +1,4 @@
+import glob
 import os
 import pathlib
 import signal
@@ -126,3 +127,19 @@ def test(source: Source, suite: Suite) -> None:
         suite(source)
     finally:
         source.cleanup()
+
+
+def test_all_scripts_used() -> None:
+    with open("suites.yml") as o:
+        suites = o.read()
+    with open("sources.yml") as o:
+        sources = o.read()
+
+    missing = []
+    for script in glob.glob("scripts/*"):
+        script = os.path.basename(script)
+        if script in suites or script in sources:
+            pass
+        else:
+            missing.append(script)
+    assert not missing
