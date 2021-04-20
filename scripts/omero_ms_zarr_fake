@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 set -e
-set -m
 set -u
 
 SUITE=omero-ms-zarr-suite
 test -e $SUITE || git clone -b nested git://github.com/joshmoore/omero-ms-zarr $SUITE 1>&2
 
 cd $SUITE
-docker-compose up &
-bg
+docker-compose up -d
 
 function finish {
     echo "Cleaning up"
@@ -22,7 +20,7 @@ SERVER="localhost:4064"
 
 # Wait up to 2 mins
 i=0
-while ! docker-compose exec omeroserver $OMERO login -C -s root@$SERVER -w omero; do
+while ! docker-compose exec -T omeroserver $OMERO login -C -s root@$SERVER -w omero; do
     i=$(($i+1))
     if [ $i -ge 24 ]; then
         echo "$(date) - OMERO.server still not reachable, giving up"
@@ -31,12 +29,8 @@ while ! docker-compose exec omeroserver $OMERO login -C -s root@$SERVER -w omero
     echo "$(date) - waiting for OMERO.server..."
     sleep 5
 done
-echo "OMERO.server connection established"
 
-docker-compose exec omeroserver touch /tmp/a.fake 1>&2
-docker-compose exec omeroserver env OMERODIR=/opt/omero/server/OMERO.server $OMERO -s root@localhost -w omero import /tmp/a.fake 1>&2
-
-# Only print return value to stdout
-echo ::connection::print connection?
-
-fg  # Restore docker-compose to foreground for signal handling
+docker-compose exec -T omeroserver touch /tmp/a.fake 1>&2
+docker-compose exec -T omeroserver env OMERODIR=/opt/omero/server/OMERO.server $OMERO -s root@localhost -w omero import /tmp/a.fake 1>&2
+echo "::ready:: OMERO.server connection established"
+docker-compose logs -f zarr  # Wait for cancellation

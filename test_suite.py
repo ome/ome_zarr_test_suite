@@ -68,12 +68,28 @@ class ProcessSource(Source):
         self.proc: typing.Optional[subprocess.Popen[bytes]] = None
 
     def __call__(self) -> str:
-        self.proc = subprocess.Popen(self.cmd, cwd=str(self.cwd))
+        self.proc = subprocess.Popen(
+            self.cmd, cwd=str(self.cwd), stdout=subprocess.PIPE,
+        )
+
+        while True:
+            print("Waiting for server...")
+            output = None
+            if self.proc.stdout is not None:
+                output = self.proc.stdout.readline()
+            if self.proc.poll() is not None:
+                break
+            if output:
+                out = output.decode().strip()
+                print(f"OUT: {out}")
+                if "::ready::" in out:
+                    break
+
         return self.conn
 
     def cleanup(self) -> None:
         if self.proc:
-            self.proc.send_signal(signal.SIGTERM)
+            self.proc.send_signal(signal.SIGINT)
 
 
 class Suite:
