@@ -45,6 +45,6 @@
     - "--compression=blosc"
     - "--nested=true"
 
-- name: ms
+- name: omeromszarr
   script: omero_ms_zarr_fake
   connection: http://localhost:8080/image/1.zarr/
