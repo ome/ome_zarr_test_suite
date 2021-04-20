@@ -44,11 +44,12 @@ class GeneratedSource(Source):
     The script will be run and the stdout will be assumed to be a URI.
     """
 
-    def __init__(self, cmd: typing.List[str]) -> None:
+    def __init__(self, cmd: typing.List[str], tmpdir: py.path.local,) -> None:
         self.cmd = cmd
+        self.cwd = tmpdir
 
     def __call__(self) -> str:
-        return subprocess.check_output(self.cmd).decode().strip()
+        return subprocess.check_output(self.cmd, cwd=str(self.cwd)).decode().strip()
 
 
 class ProcessSource(Source):
@@ -58,13 +59,16 @@ class ProcessSource(Source):
     connection will be the URI passed to suites.
     """
 
-    def __init__(self, cmd: typing.List[str], conn: str) -> None:
+    def __init__(
+        self, cmd: typing.List[str], conn: str, tmpdir: py.path.local,
+    ) -> None:
         self.cmd = cmd
         self.conn = conn
+        self.cwd = tmpdir
         self.proc: typing.Optional[subprocess.Popen[bytes]] = None
 
     def __call__(self) -> str:
-        self.proc = subprocess.Popen(self.cmd)
+        self.proc = subprocess.Popen(self.cmd, cwd=str(self.cwd))
         return self.conn
 
     def cleanup(self) -> None:
@@ -140,11 +144,11 @@ def source(request: SubRequest, tmpdir: py.path.local) -> typing.Iterator[Source
             # If a connection is defined, then this is a background process
             if "connection" in doc:
                 conn = doc["connection"]
-                yield ProcessSource(cmd, conn)
+                yield ProcessSource(cmd, conn, tmpdir)
 
             # Otherwise, run the generator which will produce a string
             else:
-                yield GeneratedSource(cmd)  # FIXME: how to clean up?
+                yield GeneratedSource(cmd, tmpdir)
 
 
 @pytest.fixture(params=suites())
