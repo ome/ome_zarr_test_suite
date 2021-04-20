@@ -5,6 +5,7 @@ import signal
 import subprocess
 import typing
 
+import py
 import pytest
 import yaml
 from _pytest.fixtures import SubRequest
@@ -70,47 +71,52 @@ def sources() -> typing.Iterator[dict]:
     with open("sources.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
     for i, doc in enumerate(docs):
-        yield pytest.param(doc, id=f"source_{i}")
+        name = doc["name"]
+        yield pytest.param(doc, id=name)
 
 
 def suites() -> typing.Iterator[dict]:
     with open("suites.yml") as file:
         docs = yaml.load(file, Loader=yaml.FullLoader)
     for i, doc in enumerate(docs):
-        yield pytest.param(doc, id=f"suite_{i}")
+        name = doc["name"]
+        yield pytest.param(doc, id=name)
 
 
 @pytest.fixture(params=sources())
-def source(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Source]:
+def source(request: SubRequest, tmpdir: py.path.local) -> typing.Iterator[Source]:
     doc = request.param
-    # fixdir = tmpdir / request.fixturename
-    # fixdir.mkdir()
-    os.chdir(tmpdir)
+    with tmpdir.as_cwd():
 
-    # If this is a string, wrap it into a source
-    if isinstance(doc, str):
-        if ":" not in doc:
-            # All files without a protocol should be taken relative to CWD
-            _ = (pathlib.Path(f"{request.config.invocation_dir}") / doc).resolve()
-            filename = str(_)
+        skip = doc.get("skip", False)
+        if skip:
+            pytest.skip(f"skip set: {skip}")
+
+        # If this is a string, wrap it into a source
+        if "path" in doc:
+            path = doc["path"]
+            if ":" not in path:
+                # All files without a protocol should be taken relative to CWD
+                _ = (pathlib.Path(f"{request.config.invocation_dir}") / path).resolve()
+                filename = str(_)
+            else:
+                filename = path
+            yield FileSource(filename)
+
         else:
-            filename = doc
-        yield FileSource(filename)
+            script = doc["script"]
+            script = f"{request.config.invocation_dir}/scripts/{script}"
+            args = doc.get("args", [])
+            cmd = [script] + args
 
-    else:
-        script = doc["script"]
-        script = f"{request.config.invocation_dir}/scripts/{script}"
-        args = doc.get("args", [])
-        cmd = [script] + args
+            # If a connection is defined, then this is a background process
+            if "connection" in doc:
+                conn = doc["connection"]
+                yield ProcessSource(cmd, conn)
 
-        # If a connection is defined, then this is a background process
-        if "connection" in doc:
-            conn = doc["connection"]
-            yield ProcessSource(cmd, conn)
-
-        # Otherwise, run the generator which will produce a string
-        else:
-            yield GeneratedSource(cmd)  # FIXME: how to clean up?
+            # Otherwise, run the generator which will produce a string
+            else:
+                yield GeneratedSource(cmd)  # FIXME: how to clean up?
 
 
 @pytest.fixture(params=suites())

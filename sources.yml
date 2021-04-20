@@ -1,28 +1,50 @@
 ---
 
-- script: ome_zarr_create
+# Each source will be passed to each suite for testing.
+#
+# Fields
+# ------
+# - name:           identifier that will be displayed during pytest
+# - path OR script: URI or a script to be run
+# - connection:     script that runs in the background and needs shutting down
+# - skip:           boolean for temporarily disabling a source
 
-# TODO: Requires having the validation code internally.
-- https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
 
-- data/64x64-fake-v0.1/0
+# Generally organized by speed
 
-- data/64x64-fake-v0.2/0
+- name: create
+  script: ome_zarr_create
 
-# TODO: these need to be replaced by the above
-- https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
+- name: create
+  script: ome_zarr_create
 
-- https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.2/0
+- name: localfake1
+  path: data/64x64-fake-v0.1/0
 
-- script: bioformats2raw_fake
+- name: localfake2
+  path: data/64x64-fake-v0.2/0
+
+- name: remotefake1
+  path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
+
+- name: remotefake2
+  path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.2/0
+
+- name: idr6001240
+  path: https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
+
+- name: bf2rawraw
+  script: bioformats2raw_fake
   args:
     - "--compression=raw"
     - "--nested=true"
 
-- script: bioformats2raw_fake
+- name: bf2rawcompressed
+  script: bioformats2raw_fake
   args:
     - "--compression=blosc"
     - "--nested=true"
 
-- script: omero_ms_zarr_fake
+- name: ms
+  script: omero_ms_zarr_fake
   connection: http://localhost:8080/image/1.zarr/
