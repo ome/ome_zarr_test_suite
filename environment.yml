@@ -9,6 +9,6 @@ dependencies:
   - s3fs
   - zarr >= 2.7.0
   - pip
+  - pytest
   - pip:
       - ome-zarr
-      - pytest

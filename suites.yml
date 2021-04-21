@@ -2,7 +2,7 @@
 - name: info
   script: ome_zarr_info
 
-- name: download
+- name: downloads
   script: ome_zarr_downloads
 
 - name: checksum
