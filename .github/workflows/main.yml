@@ -22,12 +22,6 @@ jobs:
           environment-file: environment.yml
           python-version: 3.9
 
-      - name: Install dependencies (temp)
-        shell: bash -l {0}
-        run: |
-          python -m pip install \
-          git+https://github.com/joshmoore/ome-zarr-py.git@nested
-
       - name: Run pytest
         shell: bash -l {0}
         run: pytest -vxk "not omero"
