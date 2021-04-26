@@ -1,0 +1,14 @@
+channels:
+  - ome
+  - conda-forge
+  - defaults
+dependencies:
+  - bioformats2raw
+  - python == 3.9.0
+  - wheel
+  - s3fs
+  - zarr >= 2.7.0
+  - pip
+  - pytest
+  - pip:
+      - ome-zarr
