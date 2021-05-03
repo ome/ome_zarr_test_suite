@@ -44,7 +44,11 @@ class GeneratedSource(Source):
     The script will be run and the stdout will be assumed to be a URI.
     """
 
-    def __init__(self, cmd: typing.List[str], tmpdir: py.path.local,) -> None:
+    def __init__(
+        self,
+        cmd: typing.List[str],
+        tmpdir: py.path.local,
+    ) -> None:
         self.cmd = cmd
         self.cwd = tmpdir
 
@@ -60,7 +64,10 @@ class ProcessSource(Source):
     """
 
     def __init__(
-        self, cmd: typing.List[str], conn: str, tmpdir: py.path.local,
+        self,
+        cmd: typing.List[str],
+        conn: str,
+        tmpdir: py.path.local,
     ) -> None:
         self.cmd = cmd
         self.conn = conn
@@ -69,7 +76,9 @@ class ProcessSource(Source):
 
     def __call__(self) -> str:
         self.proc = subprocess.Popen(
-            self.cmd, cwd=str(self.cwd), stdout=subprocess.PIPE,
+            self.cmd,
+            cwd=str(self.cwd),
+            stdout=subprocess.PIPE,
         )
 
         while True:
