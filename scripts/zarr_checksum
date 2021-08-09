@@ -17,7 +17,6 @@ def zarr_checksum_check(filename: str, index: int) -> None:
             assert node.data[index].max().compute() > 0
             # For versions 0.1 and 0.2, len(shape) == 5. Otherwise len(shape) == 2
             assert len(node.data[index].shape) > 1
-            assert node.data[index].shape[-2:] == (64, 64)
 
 
 if __name__ == "__main__":
