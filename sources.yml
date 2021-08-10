@@ -15,14 +15,14 @@
 - name: create
   script: ome_zarr_create
 
-- name: create
-  script: ome_zarr_create
-
 - name: localfake1
   path: data/64x64-fake-v0.1/0
 
 - name: localfake2
   path: data/64x64-fake-v0.2/0
+
+- name: localfake3
+  path: data/64x64-fake-v0.3/0
 
 - name: remotefake1
   path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
