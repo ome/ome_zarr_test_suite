@@ -2,6 +2,8 @@
 name: Build
 
 on:
+  repository_dispatch:
+    types: [run_test_suite]
   push:
   pull_request:
   schedule:
@@ -9,11 +11,16 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        repo: ['jburel/omero-ms-zarr']
     runs-on: ubuntu-latest
+    env:
+      ms_suite: omero-ms-zarr-suite
+      bf_suite: ome-zarr-bf2raw-suite
+      zarr_suite: ome-zarr-py-suite
     steps:
-
       - uses: actions/checkout@v2
-
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -21,7 +28,48 @@ jobs:
           channels: conda-forge,ome
           environment-file: environment.yml
           python-version: 3.9
-
+      - name: Set testing environment
+        if: github.event.action == 'run_test_suite'
+        shell: bash
+        run: |
+          # Set the parameters to be used in the response
+          echo "client_repo="${{ github.event.client_payload.repo }} >> $GITHUB_ENV
+          echo "client_ref="${{ github.event.client_payload.ref }} >> $GITHUB_ENV
+          echo "client_sha="${{ github.event.client_payload.sha }} >> $GITHUB_ENV
+          echo "client_number="${{ github.event.client_payload.number }} >> $GITHUB_ENV
+          repo=${{ github.event.client_payload.repo }}
+          # Checkout the sha from the specified repository.
+          # Only run the tests matching the specified repository.
+          if [[ $repo =~ 'omero-ms-zarr' ]]; then
+            git clone git://github.com/$repo ${{env.ms_suite}}
+            cd ${{env.ms_suite}}
+            git checkout ${{ github.event.client_payload.sha }}
+            cd ..
+            python configure_test.py omero_ms_zarr
+          elif [[ $repo =~ 'bioformats2raw' ]]; then
+            git clone git://github.com/$repo ${{env.bf_suite}}
+            cd ${{env.bf_suite}}
+            git checkout ${{ github.event.client_payload.sha }}
+            cd ..
+            python configure_test.py bioformats2raw
+          elif [[ $repo =~ 'ome-zarr-py' ]]; then
+            conda activate test
+            git clone git://github.com/$repo ${{env.zarr_suite}}
+            cd ${{env.zarr_suite}}
+            git checkout ${{ github.event.client_payload.sha }}
+            pip install -e .
+            cd ..
+            conda deactivate
+            python configure_test.py ome_zarr
+          fi
       - name: Run pytest
         shell: bash -l {0}
         run: pytest -vxk "not omero"
+      - name: Notify job status
+        if: always() && github.event.action == 'run_test_suite'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          event-type: test_suite_failure
+          repository: ${{ matrix.repo }}
+          client-payload: '{"status": "${{ job.status }}", "ref": "${{env.client_ref}}", "repo": "${{env.client_repo}}", "number": "${{env.client_number}}", "repo_test": "${{github.repository}}", "run_id": ${{github.run_id}}}'
