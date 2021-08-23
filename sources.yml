@@ -14,37 +14,47 @@
 
 - name: create
   script: ome_zarr_create
+  skip: False
 
 - name: localfake1
   path: data/64x64-fake-v0.1/0
+  skip: False
 
 - name: localfake2
   path: data/64x64-fake-v0.2/0
+  skip: False
 
 - name: localfake3
   path: data/64x64-fake-v0.3/0
+  skip: False
 
 - name: remotefake1
   path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
+  skip: False
 
 - name: remotefake2
   path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.2/0
+  skip: False
 
 - name: idr6001240
   path: https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
-
+  skip: False
+  
 - name: bf2rawraw
   script: bioformats2raw_fake
   args:
     - "--compression=raw"
     - "--nested=true"
+  skip: False
 
 - name: bf2rawcompressed
   script: bioformats2raw_fake
   args:
     - "--compression=blosc"
     - "--nested=true"
+  skip: False
 
 - name: omeromszarr
   script: omero_ms_zarr_fake
   connection: http://localhost:8080/image/1.zarr/
+  skip: False
