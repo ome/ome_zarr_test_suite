@@ -67,9 +67,19 @@ jobs:
         run: pytest -vxk "not omero"
       - name: Notify job status
         if: always() && github.event.action == 'run_test_suite'
-        uses: peter-evans/repository-dispatch@v1
+        uses: actions/github-script@v3
         with:
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          event-type: test_suite_failure
-          repository: ${{ matrix.repo }}
-          client-payload: '{"status": "${{ job.status }}", "ref": "${{env.client_ref}}", "repo": "${{env.client_repo}}", "number": "${{env.client_number}}", "repo_test": "${{github.repository}}", "run_id": ${{github.run_id}}}'
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: 115,
+              owner: context.repo.owner,
+              repo: "glencoesoftware/bioformats2raw",
+              body: 'https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}: ${{ job.status }}'
+            })
+        #uses: peter-evans/repository-dispatch@v1
+        #with:
+        #  token: ${{ secrets.API_TOKEN_GITHUB }}
+        #  event-type: test_suite_failure
+        #  repository: ${{ matrix.repo }}
+        #  client-payload: '{"status": "${{ job.status }}", "ref": "${{env.client_ref}}", "repo": "${{env.client_repo}}", "number": "${{env.client_number}}", "repo_test": "${{github.repository}}", "run_id": ${{github.run_id}}}'
