@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+set -u
+
+
+test -e bftools || {
+    test -e bftools.zip || wget https://downloads.openmicroscopy.org/bio-formats/latest/artifacts/bftools.zip
+    unzip bftools
+}
+
+test -e ZarrReader  || git clone git://github.com/ome/ZarrReader 1>&2
+cd ZarrReader
+mvn package -DskipTests # 1>&2
+cd ..
+env BF_CP=ZarrReader/target/*.jar bftools/showinf -nopix "$@"
