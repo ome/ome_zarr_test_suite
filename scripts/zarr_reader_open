@@ -4,6 +4,7 @@ set -e
 set -u
 set -x
 
+export INVOCATION_DIR=${INVOCATION_DIR:-$PWD}
 
 echo =======================
 echo Current Directory: $PWD
@@ -27,4 +28,4 @@ test -e ${INVOCATION_DIR}/ZarrReader  || {
 }
 
 export BF_CP=${INVOCATION_DIR}/ZarrReader/target/\*
-${INVOCATION_DIR}/bftools/showinf -nopix "$@"/.zattrs
+${INVOCATION_DIR}/bftools/showinf -format Zarr -nopix "$@"/.zattrs
