@@ -32,15 +32,18 @@ jobs:
           # Set the parameters to be used in the response
           repo=${{ github.event.client_payload.repo }}
           owner=${{ github.event.client_payload.owner }}
+          ref=${{ github.event.client_payload.ref }}
+          sha=${{ github.event.client_payload.sha }}
+          number=${{ github.event.client_payload.number }}
           repo_name=${repo#"$owner"}
           repo_name=${repo_name#"/"}
-          echo "client_repo="${{ github.event.client_payload.repo }} >> $GITHUB_ENV
+          echo "client_repo="$repo >> $GITHUB_ENV
           echo "client_repo_name="$repo_name >> $GITHUB_ENV
-          echo "client_owner="${{ github.event.client_payload.owner }} >> $GITHUB_ENV
-          echo "client_ref="${{ github.event.client_payload.ref }} >> $GITHUB_ENV
-          echo "client_sha="${{ github.event.client_payload.sha }} >> $GITHUB_ENV
-          echo "client_number="${{ github.event.client_payload.number }} >> $GITHUB_ENV
-          
+          echo "client_owner="$owner >> $GITHUB_ENV
+          echo "client_ref="$ref >> $GITHUB_ENV
+          echo "client_sha="$sha >> $GITHUB_ENV
+          echo "client_number="$number >> $GITHUB_ENV
+
           # Checkout the sha from the specified repository.
           # Only run the tests matching the specified repository.
           if [[ $repo =~ 'omero-ms-zarr' ]]; then
@@ -68,6 +71,7 @@ jobs:
       - name: Run pytest
         shell: bash -l {0}
         run: pytest -vxk "not omero"
+      # yamllint disable rule:line-length
       - name: Notify job status
         if: always() && github.event.action == 'run_test_suite'
         uses: actions/github-script@v3

@@ -39,7 +39,7 @@
 - name: idr6001240
   path: https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
   skip: False
-  
+
 - name: bf2rawraw
   script: bioformats2raw_fake
   args:
