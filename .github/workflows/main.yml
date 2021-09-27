@@ -11,9 +11,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        repo: ['jburel/omero-ms-zarr']
     runs-on: ubuntu-latest
     env:
       ms_suite: omero-ms-zarr-suite
