@@ -33,11 +33,17 @@ jobs:
         shell: bash
         run: |
           # Set the parameters to be used in the response
+          repo=${{ github.event.client_payload.repo }}
+          owner=${{ github.event.client_payload.owner }}
+          repo_name=${repo#"$owner"}
+          repo_name=${repo_name#"/"}
           echo "client_repo="${{ github.event.client_payload.repo }} >> $GITHUB_ENV
+          echo "client_repo_name="$repo_name >> $GITHUB_ENV
+          echo "client_owner="${{ github.event.client_payload.owner }} >> $GITHUB_ENV
           echo "client_ref="${{ github.event.client_payload.ref }} >> $GITHUB_ENV
           echo "client_sha="${{ github.event.client_payload.sha }} >> $GITHUB_ENV
           echo "client_number="${{ github.event.client_payload.number }} >> $GITHUB_ENV
-          repo=${{ github.event.client_payload.repo }}
+          
           # Checkout the sha from the specified repository.
           # Only run the tests matching the specified repository.
           if [[ $repo =~ 'omero-ms-zarr' ]]; then
@@ -69,17 +75,11 @@ jobs:
         if: always() && github.event.action == 'run_test_suite'
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.API_TOKEN_GITHUB}}
           script: |
             github.issues.createComment({
-              issue_number: 115,
-              owner: context.repo.owner,
-              repo: "glencoesoftware/bioformats2raw",
+              issue_number: "${{env.client_number}}",
+              owner: "${{env.client_owner}}",
+              repo: "${{env.client_repo_name}}",
               body: 'https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}: ${{ job.status }}'
             })
-        #uses: peter-evans/repository-dispatch@v1
-        #with:
-        #  token: ${{ secrets.API_TOKEN_GITHUB }}
-        #  event-type: test_suite_failure
-        #  repository: ${{ matrix.repo }}
-        #  client-payload: '{"status": "${{ job.status }}", "ref": "${{env.client_ref}}", "repo": "${{env.client_repo}}", "number": "${{env.client_number}}", "repo_test": "${{github.repository}}", "run_id": ${{github.run_id}}}'
