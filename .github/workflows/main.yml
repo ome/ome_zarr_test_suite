@@ -72,7 +72,7 @@ jobs:
         shell: bash -l {0}
         run: pytest -vxk "not omero"
       # yamllint disable rule:line-length
-      - name: Notify job status
+      - name: Notify job status on PR
         if: always() && github.event.action == 'run_test_suite'
         uses: actions/github-script@v3
         with:
@@ -84,3 +84,13 @@ jobs:
               repo: "${{env.client_repo_name}}",
               body: 'https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}: ${{ job.status }}'
             })
+      - name: Create issue
+        if: failure() && github.event.action == 'run_test_suite'
+        run: |
+          curl -X "POST" "https://api.github.com/repos/ome/${{env.client_repo_name}}/issues?state=all" \
+               -H "Cookie: logged_in=no" \
+               -H "Authorization: token ${{secrets.API_TOKEN_GITHUB}}" \
+               -H "Content-Type: text/plain; charset=utf-8" \
+               -d $'{
+                 "title": "Test suite failure for PR #${{env.client_number}}",
+                 "body": "Test suite status: ${{ job.status }} see https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"}'
