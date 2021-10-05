@@ -93,4 +93,8 @@ jobs:
                -H "Content-Type: text/plain; charset=utf-8" \
                -d $'{
                  "title": "Test suite failure for PR #${{env.client_number}}",
-                 "body": "Test suite status: ${{ job.status }} see https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"}'
+                 "body": "Test suite status: ${{ job.status }} see https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}",
+                 "labels": [
+                   "bug"
+                 ]
+                 }'
