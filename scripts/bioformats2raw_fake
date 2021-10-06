@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -e
 set -u
-image_name=ome_zarr_suite_bf2raw
-SUITE=ome-zarr-bf2raw-suite
-test -e $SUITE || git clone git://github.com/glencoesoftware/bioformats2raw $SUITE 1>&2
-cd $SUITE
+image_name=ome-zarr-suite-bf2raw
+test -e $image_name || git clone git://github.com/glencoesoftware/bioformats2raw $image_name 1>&2
+cd $image_name
 docker build -t ${image_name} . 1>&2
 cd ..
 echo $PWD 1>&2
