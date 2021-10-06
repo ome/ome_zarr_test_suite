@@ -3,9 +3,10 @@ import sys
 import yaml
 
 # Change the value of the skip flag depending on the repository used
-# repository:
-# value = "bioformats2raw", "ome_zarr", "omero_ms_zarr"
-ref_value = "ome_zarr"
+# repository. Supported value:
+# "bioformats2raw": do not skip the tests using bioformats2raw script
+# "ome_zarr": do not skip the tests using ome-zarr-py
+# "omero_ms_zarr": : do not skip the tests using omero-ms-zarr
 
 
 def main() -> None:
@@ -19,7 +20,7 @@ def main() -> None:
             if k["script"].startswith(value):
                 k["skip"] = False
         else:
-            if value == ref_value:
+            if value == "ome_zarr":
                 k["skip"] = False
 
     with open("sources.yml", "w") as f:
