@@ -76,7 +76,7 @@ jobs:
         if: always() && github.event.action == 'run_test_suite'
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.API_TOKEN_GITHUB}}
+          github-token: ${{secrets.ACTION_API_TOKEN}}
           script: |
             github.issues.createComment({
               issue_number: "${{env.client_number}}",
@@ -89,7 +89,7 @@ jobs:
         run: |
           curl -X "POST" "https://api.github.com/repos/ome/${{env.client_repo_name}}/issues?state=all" \
                -H "Cookie: logged_in=no" \
-               -H "Authorization: token ${{secrets.API_TOKEN_GITHUB}}" \
+               -H "Authorization: token ${{secrets.ACTION_API_TOKEN}}" \
                -H "Content-Type: text/plain; charset=utf-8" \
                -d $'{
                  "title": "Test suite failure for PR #${{env.client_number}}",
