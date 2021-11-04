@@ -29,15 +29,15 @@
   skip: False
 
 - name: remotefake1
-  path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
+  path: https://uk1s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.1/0
   skip: False
 
 - name: remotefake2
-  path: https://s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.2/0
+  path: https://uk1s3.embassy.ebi.ac.uk/idr/zarr/test-data/64x64-fake-v0.2/0
   skip: False
 
 - name: idr6001240
-  path: https://s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
+  path: https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.1/6001240.zarr
   skip: False
 
 - name: bf2rawraw

@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       ms_suite: omero-ms-zarr-suite
       bf_suite: ome-zarr-bf2raw-suite
