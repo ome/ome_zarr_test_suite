@@ -73,18 +73,6 @@ jobs:
         shell: bash -l {0}
         run: pytest -vxk "not omero"
       # yamllint disable rule:line-length
-      - name: Notify job status on PR
-        if: always() && github.event.action == 'run_test_suite'
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.ACTION_API_TOKEN}}
-          script: |
-            github.issues.createComment({
-              issue_number: "${{env.client_number}}",
-              owner: "${{env.client_owner}}",
-              repo: "${{env.client_repo_name}}",
-              body: 'https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}: ${{ job.status }}'
-            })
       - name: Create issue
         if: failure() && github.event.action == 'run_test_suite'
         run: |
@@ -93,7 +81,7 @@ jobs:
                -H "Authorization: token ${{secrets.ACTION_API_TOKEN}}" \
                -H "Content-Type: text/plain; charset=utf-8" \
                -d $'{
-                 "title": "Test suite failure for PR #${{env.client_number}}",
+                 "title": "Test suite failure for commit #${{env.client_sha}}",
                  "body": "Test suite status: ${{ job.status }} see https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}",
                  "labels": [
                    "bug"
