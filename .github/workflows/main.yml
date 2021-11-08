@@ -66,8 +66,8 @@ jobs:
             git checkout ${{ github.event.client_payload.sha }}
             pip install -e .
             cd ..
-            conda deactivate
             python configure_test.py ome_zarr
+            conda deactivate
           fi
       - name: Run pytest
         shell: bash -l {0}
