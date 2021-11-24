@@ -3,8 +3,7 @@ BF_SUITE="ome-zarr-bf2raw-suite"
 ZARR_SUITE="ome-zarr-py-suite"
 
 REPO=$1
-# Checkout the sha from the specified repository.
-# Only run the tests matching the specified repository.
+# Configure the repository to run the tests on
 eval "$(conda shell.bash hook)"
 conda activate test
 if [[ $REPO =~ 'omero-ms-zarr' ]]; then
