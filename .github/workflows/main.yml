@@ -32,43 +32,12 @@ jobs:
           # Set the parameters to be used in the response
           repo=${{ github.event.client_payload.repo }}
           owner=${{ github.event.client_payload.owner }}
-          ref=${{ github.event.client_payload.ref }}
           sha=${{ github.event.client_payload.sha }}
-          number=${{ github.event.client_payload.number }}
           repo_name=${repo#"$owner"}
           repo_name=${repo_name#"/"}
-          echo "client_repo="$repo >> $GITHUB_ENV
           echo "client_repo_name="$repo_name >> $GITHUB_ENV
-          echo "client_owner="$owner >> $GITHUB_ENV
-          echo "client_ref="$ref >> $GITHUB_ENV
           echo "client_sha="$sha >> $GITHUB_ENV
-          echo "client_number="$number >> $GITHUB_ENV
-
-          # Checkout the sha from the specified repository.
-          # Only run the tests matching the specified repository.
-          if [[ $repo =~ 'omero-ms-zarr' ]]; then
-            git clone git://github.com/$repo ${{env.ms_suite}}
-            cd ${{env.ms_suite}}
-            git checkout ${{ github.event.client_payload.sha }}
-            cd ..
-            python configure_test.py omero_ms_zarr
-          elif [[ $repo =~ 'bioformats2raw' ]]; then
-            git clone git://github.com/$repo ${{env.bf_suite}}
-            cd ${{env.bf_suite}}
-            git checkout ${{ github.event.client_payload.sha }}
-            cd ..
-            python configure_test.py bioformats2raw
-          elif [[ $repo =~ 'ome-zarr-py' ]]; then
-            eval "$(conda shell.bash hook)"
-            conda activate test
-            git clone git://github.com/$repo ${{env.zarr_suite}}
-            cd ${{env.zarr_suite}}
-            git checkout ${{ github.event.client_payload.sha }}
-            pip install -e .
-            cd ..
-            python configure_test.py ome_zarr
-            conda deactivate
-          fi
+          ./setup.sh $repo
       - name: Run pytest
         shell: bash -l {0}
         run: pytest -vxk "not omero"
@@ -81,7 +50,7 @@ jobs:
                -H "Authorization: token ${{secrets.ACTION_API_TOKEN}}" \
                -H "Content-Type: text/plain; charset=utf-8" \
                -d $'{
-                 "title": "Test suite failure for commit #${{env.client_sha}}",
+                 "title": "Test suite failure for commit ${{env.client_sha}}",
                  "body": "Test suite status: ${{ job.status }} see https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}",
                  "labels": [
                    "bug"
