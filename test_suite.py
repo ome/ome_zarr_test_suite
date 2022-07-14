@@ -180,7 +180,9 @@ def source(request: SubRequest, tmpdir: py.path.local) -> typing.Iterator[Source
 def suite(request: SubRequest, tmpdir: os.PathLike) -> typing.Iterator[Suite]:
     doc = request.param
     script = doc["script"]
-    script = f"{request.config.invocation_dir}/scripts/{script}"
+    idir = f"{request.config.invocation_dir}"
+    os.environ["INVOCATION_DIR"] = idir
+    script = f"{idir}/scripts/{script}"
     yield Suite(script)
 
 
