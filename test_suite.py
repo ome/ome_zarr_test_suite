@@ -144,7 +144,6 @@ def suites() -> typing.Iterator[dict]:
 def source(request: SubRequest, tmpdir: py.path.local) -> typing.Iterator[Source]:
     doc = request.param
     with tmpdir.as_cwd():
-
         skip = doc.get("skip", False)
         if skip:
             pytest.skip(f"skip set: {skip}")
