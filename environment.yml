@@ -4,10 +4,10 @@ channels:
   - defaults
 dependencies:
   - bioformats2raw
-  - python == 3.9.0
+  - python
   - wheel
   - s3fs
-  - zarr >= 2.7.0
+  - zarr
   - pip
   - pytest
   - yaml
