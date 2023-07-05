@@ -41,18 +41,3 @@ jobs:
       - name: Run pytest
         shell: bash -l {0}
         run: pytest -vxk "not omero"
-      # yamllint disable rule:line-length
-      - name: Create issue
-        if: failure() && github.event.action == 'run_test_suite'
-        run: |
-          curl -X "POST" "https://api.github.com/repos/ome/${{env.client_repo_name}}/issues?state=all" \
-               -H "Cookie: logged_in=no" \
-               -H "Authorization: token ${{secrets.ACTION_API_TOKEN}}" \
-               -H "Content-Type: text/plain; charset=utf-8" \
-               -d $'{
-                 "title": "Test suite failure for commit ${{env.client_sha}}",
-                 "body": "Test suite status: ${{ job.status }} see https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}",
-                 "labels": [
-                   "bug"
-                 ]
-                 }'
