@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -e
+set -u
+set -x
+
+export INVOCATION_DIR=${INVOCATION_DIR:-$PWD}
+
+echo =======================
+echo Current Directory: $PWD
+echo Invocation Directory: ${INVOCATION_DIR}
+echo =======================
+
+# Install bftools if missing
+test -e ${INVOCATION_DIR}/bftools || {
+    pushd ${INVOCATION_DIR}
+    test -e bftools.zip || wget https://downloads.openmicroscopy.org/bio-formats/latest/artifacts/bftools.zip
+    unzip bftools
+    popd
+}
+
+# Build ZarrReader if not built
+test -e ${INVOCATION_DIR}/ZarrReader  || {
+    git clone git://github.com/ome/ZarrReader ${INVOCATION_DIR}/ZarrReader
+    pushd ${INVOCATION_DIR}ZarrReader
+    mvn package -DskipTests # 1>&2
+    popd
+}
+
+export BF_CP=${INVOCATION_DIR}/ZarrReader/target/\*
+${INVOCATION_DIR}/bftools/showinf -format Zarr -nopix "$@"/.zattrs

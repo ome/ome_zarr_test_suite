@@ -7,3 +7,6 @@
 
 - name: checksum
   script: zarr_checksum
+
+- name: reader
+  script: zarr_reader_open
