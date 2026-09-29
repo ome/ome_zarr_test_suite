@@ -3,7 +3,7 @@ name: Build
 
 on:
   repository_dispatch:
-    types: [run_test_suite]
+    types: [run_test_suite_rename]
   push:
   pull_request:
   schedule:
